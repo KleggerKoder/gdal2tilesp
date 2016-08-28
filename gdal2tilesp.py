@@ -542,10 +542,10 @@ class GDAL2Tiles(object):
 			self.error("No input file specified")
 
 		# POSTPROCESSING OF PARSED ARGUMENTS:
-		
-		if self.options.output_format == 'JPEG':
-			self.tiledriver = 'JPEG'
-			self.tileext = 'jpg'
+
+		if self.options.output_format == 'WEBP':
+			self.tiledriver = 'WEBP'
+			self.tileext = 'png'
 
 		elif self.options.output_format == 'PNG':
 			self.tiledriver = 'PNG'
