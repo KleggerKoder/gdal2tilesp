@@ -551,9 +551,13 @@ class GDAL2Tiles(object):
 		elif self.options.output_format == 'PNG':
 			self.tiledriver = 'PNG'
 			self.tileext = 'png'
+			
+		elif self.options.output_format == 'JPEG':
+			self.tiledriver = 'JPEG'
+			self.tileext = 'jpg'
 
 		else:
-			self.error("Output formats allowed are PNG and JPEG")
+			self.error("Output formats allowed are PNG, JPEG or WEBP")
 		
 		if self.options.output_tilesize:
 			if self.options.output_tilesize == "1024":
