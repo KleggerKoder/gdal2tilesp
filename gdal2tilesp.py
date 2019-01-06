@@ -985,6 +985,7 @@ gdal2tiles temp.vrt""" % self.input )
 		self.omaxx = self.out_gt[0]+self.out_ds.RasterXSize*self.out_gt[1]
 		self.omaxy = self.out_gt[3]
 		self.ominy = self.out_gt[3]+self.out_ds.RasterYSize*self.out_gt[5]
+
 		# Note: maybe round(x, 14) to avoid the gdal_translate behaviour, when 0 becomes -1e-15
 
 		if self.options.verbose:
@@ -2610,6 +2611,7 @@ def worker_overview_tiles(argv, cpu, tz):
 
 if __name__=='__main__':
 	argv = gdal.GeneralCmdLineProcessor( sys.argv )
+
 	if argv:
 		gdal2tiles = GDAL2Tiles( argv[1:] ) # handle command line options
 
@@ -2622,7 +2624,17 @@ if __name__=='__main__':
 		p.start()
 		p.join()
 
-		pool = multiprocessing.Pool()
+
+		print("Generating Base Tiles:")
+
+		proc_count = gdal2tiles.options.processes
+		procs = []
+		for cpu in range(proc_count):
+			proc = multiprocessing.Process(target=worker_base_tiles, args=(argv, cpu % proc_count, queue))
+			proc.daemon = True
+			proc.start()
+			procs.append(proc)
+
 		processed_tiles = 0
 		print("Generating Base Tiles:")
 		for cpu in range(gdal2tiles.options.processes):
