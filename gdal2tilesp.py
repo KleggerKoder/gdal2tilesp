@@ -519,6 +519,8 @@ class GDAL2Tiles(object):
 		# Tile format
 		
 		self.tilesize = 256
+		self.tiledriver = 'PNG'
+		self.tileext = 'png'
 
 		# Should we read bigger window of the input raster and scale it down?
 		# Note: Modified leter by open_input()
@@ -543,18 +545,18 @@ class GDAL2Tiles(object):
 			self.error("No input file specified")
 
 		# POSTPROCESSING OF PARSED ARGUMENTS:
+		if self.options.output_format:
+			if self.options.output_format == 'WEBP':
+				self.tiledriver = 'WEBP'
+				self.tileext = 'webp'
 
-		if self.options.output_format == 'WEBP':
-			self.tiledriver = 'WEBP'
-			self.tileext = 'webp'
+			elif self.options.output_format == 'PNG':
+				self.tiledriver = 'PNG'
+				self.tileext = 'png'
 
-		elif self.options.output_format == 'PNG':
-			self.tiledriver = 'PNG'
-			self.tileext = 'png'
-			
-		elif self.options.output_format == 'JPEG':
-			self.tiledriver = 'JPEG'
-			self.tileext = 'jpg'
+			elif self.options.output_format == 'JPEG':
+				self.tiledriver = 'JPEG'
+				self.tileext = 'jpg'
 
 		else:
 			self.error("Output formats allowed are PNG, JPEG or WEBP")
@@ -985,7 +987,6 @@ gdal2tiles temp.vrt""" % self.input )
 		self.omaxx = self.out_gt[0]+self.out_ds.RasterXSize*self.out_gt[1]
 		self.omaxy = self.out_gt[3]
 		self.ominy = self.out_gt[3]+self.out_ds.RasterYSize*self.out_gt[5]
-
 		# Note: maybe round(x, 14) to avoid the gdal_translate behaviour, when 0 becomes -1e-15
 
 		if self.options.verbose:
@@ -2611,7 +2612,6 @@ def worker_overview_tiles(argv, cpu, tz):
 
 if __name__=='__main__':
 	argv = gdal.GeneralCmdLineProcessor( sys.argv )
-
 	if argv:
 		gdal2tiles = GDAL2Tiles( argv[1:] ) # handle command line options
 
@@ -2624,17 +2624,7 @@ if __name__=='__main__':
 		p.start()
 		p.join()
 
-
-		print("Generating Base Tiles:")
-
-		proc_count = gdal2tiles.options.processes
-		procs = []
-		for cpu in range(proc_count):
-			proc = multiprocessing.Process(target=worker_base_tiles, args=(argv, cpu % proc_count, queue))
-			proc.daemon = True
-			proc.start()
-			procs.append(proc)
-
+		pool = multiprocessing.Pool()
 		processed_tiles = 0
 		print("Generating Base Tiles:")
 		for cpu in range(gdal2tiles.options.processes):
