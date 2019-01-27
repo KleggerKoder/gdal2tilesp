@@ -1534,7 +1534,6 @@ class GDAL2Tiles(object):
 												dsquerytile.ReadRaster(0,0,self.tilesize,self.tilesize),
 												band_list=list(range(1,tilebands+1)))
 							children.append([x, y, tz + 1])
-							children.append([x, y, tz + 1])
 
 				self.scale_query_to_tile(dsquery, dstile, tilefilename)
 				# Write a copy of tile to png/jpg
